@@ -1,0 +1,34 @@
+# 1. Sanal bir cihaz oluştur ve STM32F4-Discovery donanım şablonunu yükle
+mach create
+machine LoadPlatformDescription @platforms/boards/stm32f4_discovery-kit.repl
+
+# 2. (Opsiyonel) Eğer kodunda UART printf varsa, ekranı aç
+showAnalyzer sysbus.usart2
+
+# 3. İŞTE CAN ALICI NOKTA: Loglama!
+# Gömülü sistemde yazdığın register değerlerini görmek için Peripheral Log'u açıyoruz.
+# GPIOE pinlerindeki değişimleri izlemek için (Motor Yönü):
+sysbus LogPeripheralAccess sysbus.gpioPortE true
+
+# TIM3 logging removed for now -- "sysbus.tim3" isn't resolving to a valid
+# peripheral object in this platform (that's what "parameters did not match
+# the signature" actually means here: the name lookup failed, not the
+# command syntax). Find the real name once the sim is running with:
+#   machine
+# or
+#   sysbus GetAllRegistered
+# and re-add a corrected LogPeripheralAccess line once you know it -- GPIOE
+# logging alone is enough to verify STBY/direction pin behavior for now.
+
+# 4. Kodu yükleme ve çalıştırma makrosu
+macro reset
+"""
+    # PlatformIO'nun oluşturduğu derlenmiş .elf dosyasını yüklüyoruz
+    # (Eğer klasör yolun farklıysa burayı kendi .pio yoluna göre değiştir)
+    sysbus LoadELF @.pio/build/disco_f407vg/firmware.elf
+"""
+runMacro $reset
+
+# This was missing entirely -- LoadELF only loads the binary into memory,
+# it doesn't start CPU execution. Without this, nothing runs at all.
+start
