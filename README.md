@@ -7,22 +7,9 @@ A two-wheeled self-balancing robot built on an **STM32F407G-DISC1** board. All o
   <img src="docs/bot.jpg" alt="The balance bot" width="500">
 </p>
 
-> 🚧 **Work in progress.** The sensing and motor parts both work on the real hardware. The balance loop (PID) is next.
+## Current status
 
----
-
-## Features
-
-| Part | What it does | Status |
-|---|---|---|
-| Clock tree | 8 MHz HSE → PLL → 168 MHz SYSCLK, flash wait states, APB prescalers | ✅ |
-| SysTick | 1 ms interrupt, `millis()` timer that doesn't block | ✅ |
-| UART debug | USART2 at 115200 baud, `printf` sent out through `_write()` | ✅ |
-| I2C driver | I2C1 at 100 kHz: single-byte read, register write, 14-byte burst read | ✅ |
-| IMU | MPU6050-compatible (the board actually has an MPU6500, `WHO_AM_I = 0x70`). Accel in g, gyro in °/s | ✅ |
-| Sensor fusion | Complementary filter (α = 0.96) that combines the accel angle and the integrated gyro rate | ✅ Tested by tilting it by hand |
-| Motor PWM | TIM3 CH1/CH2 at 10 kHz, TB6612FNG direction logic, brake and coast | ✅ |
-| Balance control | PID on the filtered tilt angle → motor commands | ⏳ Next |
+The firmware does not yet include the PID balance controller. The code currently reads the IMU, estimates the tilt angle with a complementary filter, and controls the motor PWM and direction outputs.
 
 ## Hardware
 
@@ -78,16 +65,3 @@ renode motor_test.resc
 └── docs/               # images
 ```
 
-## Roadmap
-
-- [x] UART debug output
-- [x] 168 MHz clock tree
-- [x] SysTick millisecond timer
-- [x] Bare-metal I2C and IMU readout
-- [x] Complementary filter
-- [x] Motor PWM and direction control
-- [ ] Connect the filter to the main loop at a real control rate (50–200 Hz)
-- [ ] Find the correct gyro axis once the IMU is mounted
-- [ ] PID balance controller and tuning
-- [ ] Read the wheel encoders
-- [ ] Reinforcement-learning controller to compare against PID (a follow-up project)
